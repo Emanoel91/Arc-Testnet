@@ -202,29 +202,17 @@ try:
     st.divider()
 
     # --------------------------------------------------------------------------------------------------
-    # SMART CONTRACTS (MERGED API)
+    # SMART CONTRACTS (NO DUPLICATION)
     # --------------------------------------------------------------------------------------------------
 
-    st.subheader("📑 Smart Contracts")
-
+    st.subheader("📜 Smart Contracts")
     show_metrics(
         counters_df,
-        [
-            "totalContracts",
-            "totalVerifiedContracts",
-            "lastNewContracts",
-            "lastNewVerifiedContracts"
-        ]
+        ["totalContracts", "totalVerifiedContracts", "lastNewContracts", "lastNewVerifiedContracts"]
     )
-
     show_metrics(
         contracts_df,
-        [
-            "totalContracts",
-            "newContracts24h",
-            "totalVerifiedContracts",
-            "newVerifiedContracts24h"
-        ]
+        ["newContracts24h", "newVerifiedContracts24h"]
     )
 
     st.divider()
