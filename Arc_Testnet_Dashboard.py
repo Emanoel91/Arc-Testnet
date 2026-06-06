@@ -54,12 +54,12 @@ API_URL = "https://testnet.arcscan.app/stats-service/api/v1/counters"
 # FETCH DATA
 # ----------------------------------------------------------------------------------------------------------------------
 @st.cache_data(ttl=300)
+
 def fetch_stats():
+    
 response = requests.get(API_URL, timeout=30)
 response.raise_for_status()
-return pd.DataFrame(
-    response.json().get("counters", [])
-)
+return pd.DataFrame(response.json().get("counters", []))
 
 # ----------------------------------------------------------------------------------------------------------------------
 # FORMATTER
