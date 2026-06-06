@@ -205,7 +205,7 @@ try:
     # SMART CONTRACTS (NO DUPLICATION)
     # --------------------------------------------------------------------------------------------------
 
-    st.subheader("📜 Smart Contracts")
+    st.subheader("📑 Smart Contracts")
     show_metrics(
         counters_df,
         ["totalContracts", "totalVerifiedContracts", "lastNewContracts", "lastNewVerifiedContracts"]
