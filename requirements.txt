@@ -1,7 +1,4 @@
 streamlit
 pandas
 plotly
-project/
-│
-├── app.py
-└── BritannicBold.ttf
+
