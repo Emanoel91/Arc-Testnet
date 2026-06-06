@@ -60,28 +60,38 @@ st.markdown(
 st.info("Real-time statistics fetched from Arc Testnet.")
 
 # --------------------------------------------------------------------------------------------------
-# API
+# APIs
 # --------------------------------------------------------------------------------------------------
 
-API_URL = "https://testnet.arcscan.app/stats-service/api/v1/counters"
+COUNTERS_API = "https://testnet.arcscan.app/stats-service/api/v1/counters"
+CONTRACTS_API = "https://testnet.arcscan.app/stats-service/api/v1/pages/contracts"
 
 # --------------------------------------------------------------------------------------------------
 # FETCH DATA
 # --------------------------------------------------------------------------------------------------
 
 @st.cache_data(ttl=300)
-def fetch_stats():
-    response = requests.get(API_URL, timeout=30)
-    response.raise_for_status()
+def fetch_counters():
+    r = requests.get(COUNTERS_API, timeout=30)
+    r.raise_for_status()
+    return pd.DataFrame(r.json().get("counters", []))
 
-    data = response.json()
 
-    return pd.DataFrame(
-        data.get("counters", [])
-    )
+@st.cache_data(ttl=300)
+def fetch_contract_page():
+    r = requests.get(CONTRACTS_API, timeout=30)
+    r.raise_for_status()
+    data = r.json()
+
+    # flatten dict response into dataframe
+    rows = []
+    for k, v in data.items():
+        rows.append(v)
+
+    return pd.DataFrame(rows)
 
 # --------------------------------------------------------------------------------------------------
-# FORMAT VALUES
+# FORMATTER
 # --------------------------------------------------------------------------------------------------
 
 def format_value(value):
@@ -105,28 +115,28 @@ def format_value(value):
 
         return f"{value:,.4f}"
 
-    except Exception:
+    except:
         return str(value)
 
 # --------------------------------------------------------------------------------------------------
-# KPI DISPLAY HELPER
+# KPI RENDER FUNCTION
 # --------------------------------------------------------------------------------------------------
 
-def show_metrics(df, metric_ids, columns_per_row=4):
+def show_metrics(df, ids, cols=4):
 
-    subset = df[df["id"].isin(metric_ids)]
+    df = df[df["id"].isin(ids)]
 
-    for start in range(0, len(subset), columns_per_row):
+    for i in range(0, len(df), cols):
 
-        cols = st.columns(columns_per_row)
+        cols_ui = st.columns(cols)
 
-        chunk = subset.iloc[start:start + columns_per_row]
+        chunk = df.iloc[i:i + cols]
 
-        for col, (_, row) in zip(cols, chunk.iterrows()):
+        for col, (_, row) in zip(cols_ui, chunk.iterrows()):
 
             value = format_value(row["value"])
 
-            unit = row["units"]
+            unit = row.get("units")
 
             if pd.notna(unit) and str(unit).strip() != "":
                 value = f"{value} {unit}"
@@ -139,25 +149,30 @@ def show_metrics(df, metric_ids, columns_per_row=4):
                 )
 
 # --------------------------------------------------------------------------------------------------
-# MAIN
+# LOAD DATA
 # --------------------------------------------------------------------------------------------------
 
 try:
 
-    df = fetch_stats()
+    counters_df = fetch_counters()
+    contracts_df = fetch_contract_page()
 
-    if df.empty:
-        st.warning("No data returned from API.")
+    if counters_df.empty:
+        st.warning("No counters data found.")
         st.stop()
 
-    # ----------------------------------------------------------------------------------------------
+    if contracts_df.empty:
+        st.warning("No contracts page data found.")
+        st.stop()
+
+    # --------------------------------------------------------------------------------------------------
     # NETWORK
-    # ----------------------------------------------------------------------------------------------
+    # --------------------------------------------------------------------------------------------------
 
     st.subheader("⛓ Network")
 
     show_metrics(
-        df,
+        counters_df,
         [
             "averageBlockTime",
             "totalBlocks",
@@ -168,14 +183,14 @@ try:
 
     st.divider()
 
-    # ----------------------------------------------------------------------------------------------
+    # --------------------------------------------------------------------------------------------------
     # ACTIVITY
-    # ----------------------------------------------------------------------------------------------
+    # --------------------------------------------------------------------------------------------------
 
     st.subheader("📈 Activity")
 
     show_metrics(
-        df,
+        counters_df,
         [
             "totalTxns",
             "completedTxns",
@@ -186,14 +201,14 @@ try:
 
     st.divider()
 
-    # ----------------------------------------------------------------------------------------------
-    # SMART CONTRACTS
-    # ----------------------------------------------------------------------------------------------
+    # --------------------------------------------------------------------------------------------------
+    # SMART CONTRACTS (MERGED API)
+    # --------------------------------------------------------------------------------------------------
 
     st.subheader("📑 Smart Contracts")
 
     show_metrics(
-        df,
+        counters_df,
         [
             "totalContracts",
             "totalVerifiedContracts",
@@ -202,16 +217,26 @@ try:
         ]
     )
 
+    show_metrics(
+        contracts_df,
+        [
+            "totalContracts",
+            "newContracts24h",
+            "totalVerifiedContracts",
+            "newVerifiedContracts24h"
+        ]
+    )
+
     st.divider()
 
-    # ----------------------------------------------------------------------------------------------
+    # --------------------------------------------------------------------------------------------------
     # TOKENS
-    # ----------------------------------------------------------------------------------------------
+    # --------------------------------------------------------------------------------------------------
 
     st.subheader("💎 Tokens")
 
     show_metrics(
-        df,
+        counters_df,
         [
             "totalTokens",
             "totalNativeCoinTransfers"
@@ -220,14 +245,14 @@ try:
 
     st.divider()
 
-    # ----------------------------------------------------------------------------------------------
+    # --------------------------------------------------------------------------------------------------
     # ACCOUNT ABSTRACTION
-    # ----------------------------------------------------------------------------------------------
+    # --------------------------------------------------------------------------------------------------
 
     st.subheader("💼 Account Abstraction")
 
     show_metrics(
-        df,
+        counters_df,
         [
             "totalUserOps",
             "totalAccountAbstractionWallets"
@@ -236,14 +261,14 @@ try:
 
     st.divider()
 
-    # ----------------------------------------------------------------------------------------------
+    # --------------------------------------------------------------------------------------------------
     # FEES
-    # ----------------------------------------------------------------------------------------------
+    # --------------------------------------------------------------------------------------------------
 
     st.subheader("⛽ Fees")
 
     show_metrics(
-        df,
+        counters_df,
         [
             "txnsFee24h",
             "averageTxnFee24h"
