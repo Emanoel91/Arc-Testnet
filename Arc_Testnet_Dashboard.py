@@ -140,7 +140,7 @@ try:
     # NETWORK
     # ----------------------------------------------------------------------------------------------
 
-    st.subheader("⚡ Network")
+    st.subheader("⛓ Network")
 
     show_metrics(
         df,
@@ -176,7 +176,7 @@ try:
     # SMART CONTRACTS
     # ----------------------------------------------------------------------------------------------
 
-    st.subheader("📜 Smart Contracts")
+    st.subheader("📑 Smart Contracts")
 
     show_metrics(
         df,
@@ -194,7 +194,7 @@ try:
     # TOKENS
     # ----------------------------------------------------------------------------------------------
 
-    st.subheader("🪙 Tokens")
+    st.subheader("💎 Tokens")
 
     show_metrics(
         df,
@@ -210,7 +210,7 @@ try:
     # ACCOUNT ABSTRACTION
     # ----------------------------------------------------------------------------------------------
 
-    st.subheader("👛 Account Abstraction")
+    st.subheader("💼 Account Abstraction")
 
     show_metrics(
         df,
@@ -226,7 +226,7 @@ try:
     # FEES
     # ----------------------------------------------------------------------------------------------
 
-    st.subheader("💸 Fees")
+    st.subheader("⛽ Fees")
 
     show_metrics(
         df,
