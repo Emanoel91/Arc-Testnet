@@ -1,3 +1,7 @@
 .streamlit/secrets.toml
 __pycache__/
 *.pyc
+project/
+│
+├── app.py
+└── BritannicBold.ttf
