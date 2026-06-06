@@ -78,14 +78,14 @@ API_URL = "https://testnet.arcscan.app/stats-service/api/v1/counters"
 @st.cache_data(ttl=300)
 def fetch_stats():
 
-```
+ 
 response = requests.get(API_URL, timeout=30)
 response.raise_for_status()
 
 return pd.DataFrame(
     response.json().get("counters", [])
 )
-```
+ 
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -95,7 +95,7 @@ return pd.DataFrame(
 
 def format_value(value):
 
-```
+ 
 try:
 
     value = float(value)
@@ -119,7 +119,7 @@ try:
 
 except:
     return str(value)
-```
+ 
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -129,7 +129,7 @@ except:
 
 def show_metrics(df, metric_ids, cols_per_row=4):
 
-```
+ 
 subset = df[df["id"].isin(metric_ids)]
 
 for i in range(0, len(subset), cols_per_row):
@@ -153,7 +153,7 @@ for i in range(0, len(subset), cols_per_row):
                 value=value,
                 help=row["description"]
             )
-```
+ 
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -163,7 +163,7 @@ for i in range(0, len(subset), cols_per_row):
 
 try:
 
-```
+ 
 df = fetch_stats()
 
 if df.empty:
@@ -269,10 +269,10 @@ show_metrics(
         "averageTxnFee24h"
     ]
 )
-```
+ 
 
 except Exception as e:
 
-```
+ 
 st.error(f"Error loading data: {e}")
-```
+ 
