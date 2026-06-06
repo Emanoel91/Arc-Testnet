@@ -3,264 +3,238 @@ import requests
 import pandas as pd
 
 # --------------------------------------------------------------------------------------------------
-
 # PAGE CONFIG
-
 # --------------------------------------------------------------------------------------------------
 
 st.set_page_config(
-page_title="Arc Testnet Dashboard",
-page_icon="⚡",
-layout="wide"
+    page_title="Arc Testnet Dashboard",
+    page_icon="⚡",
+    layout="wide"
 )
 
 # --------------------------------------------------------------------------------------------------
-
 # CUSTOM CSS
-
 # --------------------------------------------------------------------------------------------------
 
 st.markdown(
-""" <style>
+    """
+    <style>
 
- 
-div[data-testid="stMetricValue"] {
-    font-size: 34px !important;
-    font-weight: bold !important;
-}
+    div[data-testid="stMetricValue"] {
+        font-size: 34px !important;
+        font-weight: bold !important;
+    }
 
-div[data-testid="stMetricLabel"] {
-    font-size: 16px !important;
-    font-weight: bold !important;
-}
+    div[data-testid="stMetricLabel"] {
+        font-size: 16px !important;
+        font-weight: bold !important;
+    }
 
-</style>
-""",
-unsafe_allow_html=True
- 
-
+    </style>
+    """,
+    unsafe_allow_html=True
 )
 
 # --------------------------------------------------------------------------------------------------
-
 # HEADER
-
 # --------------------------------------------------------------------------------------------------
 
 st.title("⚡ Arc Testnet Dashboard")
 
 st.info(
-"Real-time statistics fetched from Arc Testnet."
+    "Real-time statistics fetched from Arc Testnet."
 )
 
 # --------------------------------------------------------------------------------------------------
-
 # API
-
 # --------------------------------------------------------------------------------------------------
 
 API_URL = "https://testnet.arcscan.app/stats-service/api/v1/counters"
 
 # --------------------------------------------------------------------------------------------------
-
 # FETCH DATA
-
 # --------------------------------------------------------------------------------------------------
 
 @st.cache_data(ttl=300)
 def fetch_stats():
-response = requests.get(API_URL, timeout=30)
-response.raise_for_status()
+    response = requests.get(API_URL, timeout=30)
+    response.raise_for_status()
 
- 
-data = response.json()
+    data = response.json()
 
-return pd.DataFrame(
-    data.get("counters", [])
-)
- 
+    return pd.DataFrame(
+        data.get("counters", [])
+    )
 
 # --------------------------------------------------------------------------------------------------
-
 # FORMAT VALUES
-
 # --------------------------------------------------------------------------------------------------
 
 def format_value(value):
-try:
-value = float(value)
+    try:
+        value = float(value)
 
- 
-    if value >= 1_000_000_000:
-        return f"{value / 1_000_000_000:.2f}B"
+        if value >= 1_000_000_000:
+            return f"{value / 1_000_000_000:.2f}B"
 
-    if value >= 1_000_000:
-        return f"{value / 1_000_000:.2f}M"
+        if value >= 1_000_000:
+            return f"{value / 1_000_000:.2f}M"
 
-    if value >= 1_000:
-        return f"{value / 1_000:.2f}K"
+        if value >= 1_000:
+            return f"{value / 1_000:.2f}K"
 
-    if value < 1:
-        return f"{value:.4f}"
+        if value < 1:
+            return f"{value:.4f}"
 
-    if value.is_integer():
-        return f"{int(value):,}"
+        if value.is_integer():
+            return f"{int(value):,}"
 
-    return f"{value:,.4f}"
+        return f"{value:,.4f}"
 
-except Exception:
-    return str(value)
- 
+    except Exception:
+        return str(value)
 
 # --------------------------------------------------------------------------------------------------
-
 # KPI DISPLAY HELPER
-
 # --------------------------------------------------------------------------------------------------
 
 def show_metrics(df, metric_ids, columns_per_row=4):
 
- 
-subset = df[df["id"].isin(metric_ids)]
+    subset = df[df["id"].isin(metric_ids)]
 
-for start in range(0, len(subset), columns_per_row):
+    for start in range(0, len(subset), columns_per_row):
 
-    cols = st.columns(columns_per_row)
+        cols = st.columns(columns_per_row)
 
-    chunk = subset.iloc[start:start + columns_per_row]
+        chunk = subset.iloc[start:start + columns_per_row]
 
-    for col, (_, row) in zip(cols, chunk.iterrows()):
+        for col, (_, row) in zip(cols, chunk.iterrows()):
 
-        value = format_value(row["value"])
+            value = format_value(row["value"])
 
-        unit = row["units"]
+            unit = row["units"]
 
-        if pd.notna(unit) and str(unit).strip() != "":
-            value = f"{value} {unit}"
+            if pd.notna(unit) and str(unit).strip() != "":
+                value = f"{value} {unit}"
 
-        with col:
-            st.metric(
-                label=row["title"],
-                value=value,
-                help=row["description"]
-            )
- 
+            with col:
+                st.metric(
+                    label=row["title"],
+                    value=value,
+                    help=row["description"]
+                )
 
 # --------------------------------------------------------------------------------------------------
-
 # MAIN
-
 # --------------------------------------------------------------------------------------------------
 
 try:
 
- 
-df = fetch_stats()
+    df = fetch_stats()
 
-if df.empty:
-    st.warning("No data returned from API.")
-    st.stop()
+    if df.empty:
+        st.warning("No data returned from API.")
+        st.stop()
 
-# ----------------------------------------------------------------------------------------------
-# NETWORK
-# ----------------------------------------------------------------------------------------------
+    # ----------------------------------------------------------------------------------------------
+    # NETWORK
+    # ----------------------------------------------------------------------------------------------
 
-st.subheader("⚡ Network")
+    st.subheader("⚡ Network")
 
-show_metrics(
-    df,
-    [
-        "averageBlockTime",
-        "totalBlocks",
-        "newTxns24h",
-        "pendingTxns30m"
-    ]
-)
+    show_metrics(
+        df,
+        [
+            "averageBlockTime",
+            "totalBlocks",
+            "newTxns24h",
+            "pendingTxns30m"
+        ]
+    )
 
-st.divider()
+    st.divider()
 
-# ----------------------------------------------------------------------------------------------
-# ACTIVITY
-# ----------------------------------------------------------------------------------------------
+    # ----------------------------------------------------------------------------------------------
+    # ACTIVITY
+    # ----------------------------------------------------------------------------------------------
 
-st.subheader("📈 Activity")
+    st.subheader("📈 Activity")
 
-show_metrics(
-    df,
-    [
-        "totalTxns",
-        "completedTxns",
-        "totalAccounts",
-        "totalAddresses"
-    ]
-)
+    show_metrics(
+        df,
+        [
+            "totalTxns",
+            "completedTxns",
+            "totalAccounts",
+            "totalAddresses"
+        ]
+    )
 
-st.divider()
+    st.divider()
 
-# ----------------------------------------------------------------------------------------------
-# SMART CONTRACTS
-# ----------------------------------------------------------------------------------------------
+    # ----------------------------------------------------------------------------------------------
+    # SMART CONTRACTS
+    # ----------------------------------------------------------------------------------------------
 
-st.subheader("📜 Smart Contracts")
+    st.subheader("📜 Smart Contracts")
 
-show_metrics(
-    df,
-    [
-        "totalContracts",
-        "totalVerifiedContracts",
-        "lastNewContracts",
-        "lastNewVerifiedContracts"
-    ]
-)
+    show_metrics(
+        df,
+        [
+            "totalContracts",
+            "totalVerifiedContracts",
+            "lastNewContracts",
+            "lastNewVerifiedContracts"
+        ]
+    )
 
-st.divider()
+    st.divider()
 
-# ----------------------------------------------------------------------------------------------
-# TOKENS
-# ----------------------------------------------------------------------------------------------
+    # ----------------------------------------------------------------------------------------------
+    # TOKENS
+    # ----------------------------------------------------------------------------------------------
 
-st.subheader("🪙 Tokens")
+    st.subheader("🪙 Tokens")
 
-show_metrics(
-    df,
-    [
-        "totalTokens",
-        "totalNativeCoinTransfers"
-    ]
-)
+    show_metrics(
+        df,
+        [
+            "totalTokens",
+            "totalNativeCoinTransfers"
+        ]
+    )
 
-st.divider()
+    st.divider()
 
-# ----------------------------------------------------------------------------------------------
-# ACCOUNT ABSTRACTION
-# ----------------------------------------------------------------------------------------------
+    # ----------------------------------------------------------------------------------------------
+    # ACCOUNT ABSTRACTION
+    # ----------------------------------------------------------------------------------------------
 
-st.subheader("👛 Account Abstraction")
+    st.subheader("👛 Account Abstraction")
 
-show_metrics(
-    df,
-    [
-        "totalUserOps",
-        "totalAccountAbstractionWallets"
-    ]
-)
+    show_metrics(
+        df,
+        [
+            "totalUserOps",
+            "totalAccountAbstractionWallets"
+        ]
+    )
 
-st.divider()
+    st.divider()
 
-# ----------------------------------------------------------------------------------------------
-# FEES
-# ----------------------------------------------------------------------------------------------
+    # ----------------------------------------------------------------------------------------------
+    # FEES
+    # ----------------------------------------------------------------------------------------------
 
-st.subheader("💸 Fees")
+    st.subheader("💸 Fees")
 
-show_metrics(
-    df,
-    [
-        "txnsFee24h",
-        "averageTxnFee24h"
-    ]
-)
- 
+    show_metrics(
+        df,
+        [
+            "txnsFee24h",
+            "averageTxnFee24h"
+        ]
+    )
 
 except Exception as e:
-st.error(f"Error loading data: {e}")
+    st.error(f"Error loading data: {e}")
