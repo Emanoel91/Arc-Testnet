@@ -34,11 +34,17 @@ st.markdown(
 # HEADER
 # --------------------------------------------------------------------------------------------------
 
-st.title("⚡ Arc Testnet Dashboard")
-
-st.info(
-    "Real-time statistics fetched from Arc Testnet."
+# --- Title with Logo ---------------------------------------------------------------------------------------------------
+st.markdown(
+    """
+    <div style="display: flex; align-items: center; gap: 15px;">
+        <img src="https://pbs.twimg.com/profile_images/1955238194443849732/sHyVRItm_400x400.jpg" alt="Arc Logo" style="width:60px; height:60px;">
+        <h1 style="margin: 0;">Arc Testnet Dashboard</h1>
+    </div>
+    """,
+    unsafe_allow_html=True
 )
+st.info("Real-time statistics fetched from Arc Testnet.")
 
 # --------------------------------------------------------------------------------------------------
 # API
