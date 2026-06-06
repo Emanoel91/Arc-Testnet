@@ -5,12 +5,7 @@ import pandas as pd
 # --------------------------------------------------------------------------------------------------
 # PAGE CONFIG
 # --------------------------------------------------------------------------------------------------
-
-st.set_page_config(
-    page_title="Arc Testnet Dashboard",
-    page_icon="⚡",
-    layout="wide"
-)
+st.set_page_config(page_title="Arc Testnet Dashboard", page_icon="https://pbs.twimg.com/profile_images/1955238194443849732/sHyVRItm_400x400.jpg", layout="wide")
 
 # --------------------------------------------------------------------------------------------------
 # CUSTOM CSS
